@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun with Unit Fractions!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background-color: #f0f9ff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #problem {
+            font-size: 2.5em;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        #fraction-wall {
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        .row {
+            display: flex;
+            margin: 5px 0;
+            height: 50px;
+        }
+
+        .block {
+            flex: 1;
+            border: 2px solid #333;
+            margin: 2px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            background-color: white;
+        }
+
+        #answer-area {
+            margin: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 10px;
+        }
+
+        input {
+            font-size: 1.5em;
+            width: 100px;
+            text-align: center;
+            padding: 10px;
+            border: 3px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #numerator {
+            background-color: #f0f0f0;
+        }
+
+        .wrong {
+            border-color: #ff4444 !important;
+            animation: shake 0.5s;
+        }
+
+        button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 25px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        #hint {
+            background-color: #ff9800;
+        }
+
+        #confetti {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 70%;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div id="problem"></div>
+    <div id="answer-area">
+        <input type="number" id="numerator" placeholder="1" readonly> /
+        <input type="number" id="denominator" placeholder="?">
+    </div>
+    <div>
+        <button id="hint">Give Me a Hint!</button>
+        <button id="next">Check Answer!</button>
+    </div>
+    <div id="feedback"></div>
+    <div id="fraction-wall"></div>
+
+    <!-- Hint Modal -->
+    <div id="hintModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Here's a Hint! 🧩</h2>
+            <p id="hintText"></p>
+        </div>
+    </div>
+
+    <script>
+        let currentProblem = null;
+        let previousProblems = [];
+
+        function getProperFactors(n) {
+            const factors = [];
+            for (let i = 2; i < n; i++) {
+                if (n % i === 0) factors.push(i);
+            }
+            return factors;
+        }
+
+        function generateUniqueProblem() {
+            const denominators = [4, 6, 8, 9, 10, 12];
+            let denominator, numerator, problemString;
+            
+            do {
+                denominator = denominators[Math.floor(Math.random() * denominators.length)];
+                const factors = getProperFactors(denominator);
+                numerator = factors[Math.floor(Math.random() * factors.length)];
+                problemString = `${numerator}/${denominator}`;
+            } while (previousProblems.includes(problemString) && previousProblems.length < denominators.length * 2);
+
+            previousProblems.push(problemString);
+            if (previousProblems.length > 10) previousProblems.shift();
+
+            currentProblem = {
+                numerator,
+                denominator,
+                answer: denominator / numerator
+            };
+
+            document.getElementById('problem').innerHTML = 
+                `Convert ${numerator}/${denominator} to a unit fraction!`;
+            document.getElementById('denominator').value = '';
+            document.getElementById('feedback').innerHTML = '';
+            document.querySelectorAll('input').forEach(i => i.classList.remove('wrong'));
+            createFractionWall(denominator);
+        }
+
+        function createFractionWall(maxDenominator) {
+            const wall = document.getElementById('fraction-wall');
+            wall.innerHTML = '';
+            
+            for(let d = 2; d <= maxDenominator; d++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                
+                for(let i = 0; i < d; i++) {
+                    const block = document.createElement('div');
+                    block.className = 'block';
+                    block.textContent = `1/${d}`;
+                    block.addEventListener('click', () => highlightBlocks(d, currentProblem.numerator));
+                    row.appendChild(block);
+                }
+                wall.appendChild(row);
+            }
+        }
+
+        function highlightBlocks(denominator, count) {
+            document.querySelectorAll('.block').forEach(b => b.style.backgroundColor = 'white');
+            const blocks = document.querySelectorAll(`.row:nth-child(${denominator-1}) .block`);
+            blocks.forEach((b, i) => {
+                if(i < count) b.style.backgroundColor = '#90CAF9';
+            });
+        }
+
+        function validateAnswer() {
+            const userAnswer = parseInt(document.getElementById('denominator').value);
+            const inputs = document.querySelectorAll('input');
+            
+            if(userAnswer === currentProblem.answer) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+                setTimeout(generateUniqueProblem, 1500);
+                return true;
+            } else {
+                inputs.forEach(i => i.classList.add('wrong'));
+                document.getElementById('feedback').innerHTML = '❌ Try again!';
+                return false;
+            }
+        }
+
+        // Modal handling
+        const modal = document.getElementById('hintModal');
+        const span = document.getElementsByClassName('close-modal')[0];
+
+        document.getElementById('hint').addEventListener('click', () => {
+            document.getElementById('hintText').textContent = 
+                `Divide both numerator (${currentProblem.numerator}) and denominator (${currentProblem.denominator}) by ${currentProblem.numerator}!`;
+            modal.style.display = 'block';
+        });
+
+        span.onclick = () => modal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target == modal) modal.style.display = 'none';
+        }
+
+        document.getElementById('next').addEventListener('click', validateAnswer);
+        document.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') validateAnswer();
+        });
+
+        generateUniqueProblem();
+    </script>
+</body>
+</html>
