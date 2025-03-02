@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Hub</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background-color: #f0f9ff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .subject-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 150px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .subject-card h2 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+        }
+
+        .chapters {
+            display: none;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .chapters a {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .chapters a:hover {
+            background-color: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .coming-soon {
+            color: #95a5a6;
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        /* Color coding for subjects */
+        .maths { background-color: #ffeeba; }
+        .english { background-color: #c7ecee; }
+        .science { background-color: #ffcccc; }
+        .ict { background-color: #d6f5d6; }
+        .french { background-color: #e8d3ff; }
+        .hindi { background-color: #ffebd2; }
+        .marathi { background-color: #ffe4e1; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Grade 3 Learning Hub! 📚</h1>
+    <div class="container">
+        <!-- Maths Card -->
+        <div class="subject-card maths" onclick="toggleChapters('maths')">
+            <h2>Mathematics ➗</h2>
+            <div class="chapters" id="maths-chapters">
+                <a href="unitFractions.html">Chapter 12: More Fractions - Unit Fractions</a>
+                <!-- Add more chapters here later -->
+            </div>
+            <div class="coming-soon">More chapters coming soon!</div>
+        </div>
+
+        <!-- Other Subject Cards -->
+        <div class="subject-card english">
+            <h2>English 📖</h2>
+            <div class="coming-soon">Content coming soon!</div>
+        </div>
+
+        <div class="subject-card science">
+            <h2>Science 🔬</h2>
+            <div class="coming-soon">Content coming soon!</div>
+        </div>
+
+        <div class="subject-card ict">
+            <h2>ICT 💻</h2>
+            <div class="coming-soon">Content coming soon!</div>
+        </div>
+
+        <div class="subject-card french">
+            <h2>French 🇫🇷</h2>
+            <div class="coming-soon">Content coming soon!</div>
+        </div>
+
+        <div class="subject-card hindi">
+            <h2>Hindi 🇮🇳</h2>
+            <div class="coming-soon">Content coming soon!</div>
+        </div>
+
+        <div class="subject-card marathi">
+            <h2>Marathi 🇮🇳</h2>
+            <div class="coming-soon">Content coming soon!</div>
+        </div>
+    </div>
+
+    <script>
+        function toggleChapters(subject) {
+            const chapters = document.getElementById(`${subject}-chapters`);
+            const comingSoon = chapters.parentElement.querySelector('.coming-soon');
+            
+            chapters.style.display = chapters.style.display === 'block' ? 'none' : 'block';
+            comingSoon.style.display = chapters.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+</body>
+</html>
